@@ -4,7 +4,10 @@ Summon+Ares
 
 ## Installation
 
-Use `movefiles.cmd` to move the javascript and css files to the Ares webroot. You can also do this manually. 
+If Ares' webroot is at `C:\inetpub\wwwroot\ares`, then you can use `movefiles.cmd` to move js and css files to the correct locations. 
+To do so, right click on `movefiles.cmd` and select "Run as administrator..." 
+
+You can also copy the two files manually. Copy `evocator.js` to the js folder. Copy `evocator.css` to the css folder.
 
 Add this to the head of IRFArticle.html:
 ```html

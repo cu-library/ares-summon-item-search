@@ -8,15 +8,21 @@ REM Change to the same directory as the current script
 @cd /d "%~dp0"
 
 SET installdir=C:\inetpub\wwwroot\ares
-SET jsinstalllocation=%installdir%\js\ares_summon_item_search.js
-SET cssinstalllocation=%installdir%\css\ares_summon_item_search.css 
+SET jsinstalldir=%installdir%\js
+SET cssinstalldir=%installdir%\css
 
 ECHO To use this script, right click and select "Run as administrator" option.
 ECHO You will still need to include ares_summon_item_search.js in item forms. See the README.
 
-ECHO Installing...
-COPY /V /-Y ares_summon_item_search.js %jsinstalllocation%
-COPY /V /-Y ares_summon_item_search.css %cssinstalllocation%
+ECHO Copying jquery-1.11.3.min.js...
+COPY /V /-Y jquery-1.11.3.min.js %jsinstalldir%
+
+ECHO Copying ares_summon_item_search.js...
+COPY /V /-Y ares_summon_item_search.js %jsinstalldir%
+
+ECHO Copying ares_summon_item_search.css...
+COPY /V /-Y ares_summon_item_search.css %cssinstalldir%
+
 ECHO Done!
 PAUSE
 

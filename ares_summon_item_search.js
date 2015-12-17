@@ -1,14 +1,14 @@
-/* Evocator.js - https://github.com/cu-library/evocation */
+/* ares_summon_item_search - https://github.com/cu-library/ares_summon_item_search.git */
 
-var Evocator = Evocator || {};
+var AresSummonItemSearch = AresSummonItemSearch || {};
 
 /* Init function */
-Evocator.init = function(){
+AresSummonItemSearch.init = function(){
   console.log("Hello!");
 }
 
 /* When the DOM is ready, do work! */
-$(function() {
-  Evocator.init();
+AresSummonItemSearchjQuery(document).ready(function($){
+  AresSummonItemSearch.init();
 });
 

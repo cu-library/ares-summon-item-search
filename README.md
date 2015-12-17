@@ -1,6 +1,6 @@
-# Evocator
+# Evocation
 
-Summon+Ares
+Using Summon search results to prepopulate forms in Ares.
 
 ## Installation
 

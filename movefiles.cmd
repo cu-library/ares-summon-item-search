@@ -15,8 +15,8 @@ ECHO To use this script, right click and select "Run as administrator" option.
 ECHO You will still need to include evocator.js in item forms. See the README.
 
 ECHO Installing...
-COPY /V evocator.js %jsinstalllocation%
-COPY /V evocator.css %cssinstalllocation%
+COPY /V /-Y evocator.js %jsinstalllocation%
+COPY /V /-Y evocator.css %cssinstalllocation%
 ECHO Done!
 PAUSE
 

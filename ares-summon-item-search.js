@@ -1,4 +1,4 @@
-/* ares-summon-item-search - https://github.com/cu-library/ares-ummon-item-search */
+/* ares-summon-item-search - https://github.com/cu-library/ares-summon-item-search */
 
 var AresSummonItemSearch = AresSummonItemSearch || {};
 

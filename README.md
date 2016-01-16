@@ -12,9 +12,16 @@ Copy `ares-summon-item-search.css`, `jquery-ui-1.11.4.min.css`, and the `jquery-
 
 Add this to the bottom of the `<body>` tag:
 ```html
-<!-- jQuery include from CDN, fallback if fail. Noconflict, then ares_summon_item_search -->
+<!-- ares-summon-item-search -->
 <script src="js/jquery-1.11.3.min.js"></script>
 <script src="js/jquery-ui-1.11.4.min.js"></script>
 <script>AresSummonItemSearchjQuery = jQuery.noConflict(true);</script>
 <script src="js/ares-summon-item-search.js"></script>
+<script>
+/* When the DOM is ready, do work! */
+AresSummonItemSearchjQuery(document).ready(function(){
+  AresSummonItemSearch.init(AresSummonItemSearchjQuery, 
+                            "https://yourloricaurl.com/2.0.0/search");
+});
+</script>
 ```

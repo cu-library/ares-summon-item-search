@@ -1,76 +1,209 @@
 /* ares-summon-item-search - https://github.com/cu-library/ares-summon-item-search */
 
+/* Create a AresSummonItemSearch namespace by creating an empty object,
+   in which we can define our data and functions. */
 var AresSummonItemSearch = AresSummonItemSearch || {};
 
-/* Init function */
-AresSummonItemSearch.init = function($, loricaURL){
+/* Init function. */
+AresSummonItemSearch.init = function (jq, loricaURL) {
 
-  var parent = AresSummonItemSearch;
- 
-  parent.$ = $;
-  parent.loricaURL = loricaURL;
-	
-  // Add the css file links.  
-  $('head').append('<link rel="stylesheet" href="css/ares-summon-item-search.css" type="text/css" />');
-  $('head').append('<link rel="stylesheet" href="css/jquery-ui-1.11.4.min-edit.css" type="text/css" />');
-  
-  // Health check - Ensure Is Summon is available
-  $.ajax({
-    url: loricaURL+"/ping",
-	dataType: "json",
-  })
-  .done(function(data) {   
-	if ( data.status == "available") {	
-	  // Summon is available. Enable the typeahead.	
-	  // Find out if we're on the right page by Action and Form query params  
-      var query = window.location.search.substring(1);
-      if ( ~query.indexOf('Action=10') && ~query.indexOf('Form=21') ) {
-        // Journal Article (Electronic)
-        $( "#Title" ).addClass("ares-summon-autocomplete").autocomplete({
-	        source: parent.SearchJournalTitle,
-	    	minLength: 4,
-			delay: 1000,
+    "use strict";
+    var parent = AresSummonItemSearch;
+    parent.jq = jq;
+    parent.loricaURL = loricaURL;
+
+    // Add the css file links.
+    jq('head').append('<link rel="stylesheet" href="css/ares-summon-item-search.css" type="text/css" />');
+    jq('head').append('<link rel="stylesheet" href="css/jquery-ui-1.11.4.min-edit.css" type="text/css" />');
+
+    // Health check - Ensure Is Summon is available
+    jq.ajax({
+        url: loricaURL + "/ping",
+        dataType: "json"
+    })
+        .done(function (data) {
+            if (data.status === "available") {
+                // Summon is available. Enable the typeahead.
+                // Find out if we're on the right page by Action and Form query params
+                var query = window.location.search.substring(1);
+                if (~query.indexOf('Action=10') && ~query.indexOf('Form=21')) {
+                    // -- Journal Article (Electronic)
+                    // Search Journal Titles
+                    jq("#Title").addClass("ares-summon-autocomplete").autocomplete({
+                        source: parent.SearchJournalTitle,
+                        minLength: 4,
+                        delay: 500
+                    });
+                    // Search Article Titles
+                    jq("#ArticleTitle").addClass("ares-summon-autocomplete").autocomplete({
+                        source: parent.SearchArticleTitle,
+                        select: parent.SelecteArticleTitle,
+                        minLength: 4,
+                        delay: 500
+                    });
+                }
+            }
         });
-      }
-	}       
-  });  
-  
-  
-}
-
+};
 
 /* Autocomplete Source - Search Journal Title */
 AresSummonItemSearch.SearchJournalTitle = function (request, response) {
-  var parent = AresSummonItemSearch;
-  
-  $ = parent.$;
- loricaURL = parent.loricaURL;
- 
- console.log(request);
-  
-  $.ajax({
-    url: loricaURL,
-	dataType: "json",
-	data: {
-	  "s.light":"true",
-	  "s.fvf":"ContentType,Journal / eJournal",
-	  "s.ps":"5",
-	  "s.ho":"true",
-	  "s.q":request.term,
-	},	
-  })
-  .done(function(data) {   
-	console.log(data);
-    response($.map(data.documents, function( resultdocument ){
-		return resultdocument.Title[0].replace(/<\/?[^>]+(>|$)/g, "");
-	})); 	      
-  })
-  .fail(function() {
-    response([]);
-  });   
-  
-  
-}
 
+    "use strict";
+    var parent = AresSummonItemSearch;
+    var jq = parent.jq;
+    var loricaURL = parent.loricaURL;
 
+    var query = request.term;
 
+    jq.ajax({
+        url: loricaURL,
+        dataType: "json",
+        data: {
+            "s.light": "true",
+            "s.fvf": "ContentType,Journal / eJournal",
+            "s.mr": "5",
+            "s.ps": "5",
+            "s.ho": "true",
+            "s.q": query
+        }
+    })
+        .done(function (data) {
+            response(jq.map(data.documents, function (resultdocument) {
+			    // The results contain tags <h>like this</h>. Remove them.
+                return resultdocument.Title[0].replace(/<\/?[^>]+(>|$)/g, "");
+            }));
+        })
+        .fail(function () {
+            response([]);
+        });
+};
+
+/* Autocomplete Source - Search Article Title */
+AresSummonItemSearch.SearchArticleTitle = function (request, response) {
+
+    "use strict";
+    var parent = AresSummonItemSearch;
+    var jq = parent.jq;
+    var loricaURL = parent.loricaURL;
+
+    var query = request.term;
+
+    if (jq("#Title")[0].value !== "") {
+        // If the journal title has already been supplied, use it to restrict the search.
+        query = "(" + request.term + ") AND (PublicationTitle:(" + jq("#Title").val() + "))";
+    }
+
+    jq.ajax({
+        url: loricaURL,
+        dataType: "json",
+        data: {
+            "s.light": "true",
+            "s.fvf": "ContentType,Journal Article",
+            "s.mr": "5",
+            "s.ps": "5",
+            "s.ho": "true",
+            "s.q": query
+        }
+    })
+        .done(function (data) {
+            response(jq.map(data.documents, function (resultdocument, index) {
+                return {
+                    "label": resultdocument.Title[0].replace(/<\/?[^>]+(>|$)/g, ""),
+                    "value": index.toString()
+                };
+            }));
+        })
+        .fail(function () {
+            response([]);
+        });
+};
+
+/* Autocomplete Select - Article Title Selected */
+AresSummonItemSearch.SelecteArticleTitle = function (event, ui) {
+
+    "use strict";
+    var parent = AresSummonItemSearch;
+    var jq = parent.jq;
+    var loricaURL = parent.loricaURL;
+
+    var indexInResults = parseInt(ui.item.value);
+
+    jq("#ArticleTitle").val(ui.item.label);
+    jq("#ArticleTitle").addClass("ui-autocomplete-loading");
+    event.preventDefault();
+
+    var query = ui.item.label;
+
+    if (jq("#Title")[0].value !== "") {
+        query = "(" + ui.item.label + ") AND (PublicationTitle:(" + jq("#Title").val() + "))";
+    }
+
+    jq.ajax({
+        url: loricaURL,
+        dataType: "json",
+        data: {
+            "s.light": "true",
+            "s.fvf": "ContentType,Journal Article",
+            "s.mr": "5",
+            "s.ps": "5",
+            "s.ho": "true",
+            "s.q": query
+        }
+    })
+        .done(function (data) {
+            var result = data.documents[indexInResults];
+
+            // Author
+            if ("Author" in result) {
+                jq("#Author").val(result.Author[0]);
+            }
+
+            // Year
+            if ("PublicationDate_xml" in result) {
+                jq("#JournalYear").val(result.PublicationDate_xml[0].year);
+            }
+
+            // Volume
+            if ("Volume" in result) {
+                jq("#Volume").val(result.Volume[0]);
+            }
+
+            // Issue
+            if ("Issue" in result) {
+                jq("#Issue").val(result.Issue[0]);
+            }
+
+            // Month
+            if ("PublicationDate_xml" in result) {
+                jq("#Month").val(parent.GetMonthName(result.PublicationDate_xml[0].month));
+            }
+
+            // Pages
+            if ("StartPage" in result) {
+                var startpage = result.StartPage[0];
+                if ("EndPage" in result) {
+                    var endpage = result.EndPage[0];
+                    jq("#Pages").val(startpage + "-" + endpage);
+                } else {
+                    jq("#Pages").val(startpage);
+                }
+            }
+
+            //URL
+            if (result.hasFullText && "link" in result) {
+                jq("#WebLink").prop("checked", true);
+                jq("#URL").val(result.link);
+            }
+        })
+        .always(function (data) {
+            jq("#ArticleTitle").removeClass("ui-autocomplete-loading");
+        });
+
+};
+
+AresSummonItemSearch.GetMonthName = function (monthNumber) {
+    "use strict";
+    var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    return months[parseInt(monthNumber) - 1];
+};

@@ -65,13 +65,13 @@ AresSummonItemSearch.SearchJournalTitle = function (request, response) {
             "s.mr": "5",
             "s.ps": "5",
             "s.ho": "true",
+            "s.hl": "false",
             "s.q": query
         }
     })
         .done(function (data) {
             response(jq.map(data.documents, function (resultdocument) {
-			    // The results contain tags <h>like this</h>. Remove them.
-                return resultdocument.Title[0].replace(/<\/?[^>]+(>|$)/g, "");
+                return resultdocument.Title[0];
             }));
         })
         .fail(function () {
@@ -89,7 +89,7 @@ AresSummonItemSearch.SearchArticleTitle = function (request, response) {
 
     var query = request.term;
 
-    if (jq("#Title")[0].value !== "") {
+    if (jq("#Title").val() !== "") {
         // If the journal title has already been supplied, use it to restrict the search.
         query = "(" + request.term + ") AND (PublicationTitle:(" + jq("#Title").val() + "))";
     }
@@ -103,14 +103,15 @@ AresSummonItemSearch.SearchArticleTitle = function (request, response) {
             "s.mr": "5",
             "s.ps": "5",
             "s.ho": "true",
+            "s.hl": "false",
             "s.q": query
         }
     })
         .done(function (data) {
             response(jq.map(data.documents, function (resultdocument, index) {
                 return {
-                    "label": resultdocument.Title[0].replace(/<\/?[^>]+(>|$)/g, ""),
-                    "value": index.toString()
+                    "label": resultdocument.Title[0],
+                    "value": index.toString() + query
                 };
             }));
         })
@@ -127,17 +128,12 @@ AresSummonItemSearch.SelecteArticleTitle = function (event, ui) {
     var jq = parent.jq;
     var loricaURL = parent.loricaURL;
 
-    var indexInResults = parseInt(ui.item.value);
+    var indexInResults = parseInt(ui.item.value.substr(0, 1));
+    var query = ui.item.value.substr(1);
 
     jq("#ArticleTitle").val(ui.item.label);
     jq("#ArticleTitle").addClass("ui-autocomplete-loading");
     event.preventDefault();
-
-    var query = ui.item.label;
-
-    if (jq("#Title")[0].value !== "") {
-        query = "(" + ui.item.label + ") AND (PublicationTitle:(" + jq("#Title").val() + "))";
-    }
 
     jq.ajax({
         url: loricaURL,
@@ -152,34 +148,46 @@ AresSummonItemSearch.SelecteArticleTitle = function (event, ui) {
         }
     })
         .done(function (data) {
+
             var result = data.documents[indexInResults];
 
+            // Journal Title
+            if (jq("#Title").val() === "" && "PublicationTitle" in result) {
+                jq("#Title").val(result.PublicationTitle[0]);
+            }
+
             // Author
+            jq("#Author").val("");
             if ("Author" in result) {
                 jq("#Author").val(result.Author[0]);
             }
 
             // Year
+            jq("#JournalYear").val("");
             if ("PublicationDate_xml" in result) {
                 jq("#JournalYear").val(result.PublicationDate_xml[0].year);
             }
 
             // Volume
+            jq("#Volume").val("");
             if ("Volume" in result) {
                 jq("#Volume").val(result.Volume[0]);
             }
 
             // Issue
+            jq("#Issue").val("");
             if ("Issue" in result) {
                 jq("#Issue").val(result.Issue[0]);
             }
 
             // Month
+            jq("#Month").val("");
             if ("PublicationDate_xml" in result) {
                 jq("#Month").val(parent.GetMonthName(result.PublicationDate_xml[0].month));
             }
 
             // Pages
+            jq("#Pages").val("");
             if ("StartPage" in result) {
                 var startpage = result.StartPage[0];
                 if ("EndPage" in result) {
@@ -191,6 +199,7 @@ AresSummonItemSearch.SelecteArticleTitle = function (event, ui) {
             }
 
             //URL
+            jq("#URL").val("");
             if (result.hasFullText && "link" in result) {
                 jq("#WebLink").prop("checked", true);
                 jq("#URL").val(result.link);

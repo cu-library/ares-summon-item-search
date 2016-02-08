@@ -25,3 +25,7 @@ AresSummonItemSearchjQuery(document).ready(function(){
 });
 </script>
 ```
+
+## What does it look like?
+
+![UI Preview](ares-summon-integration-preview.gif?raw=true "UI Preview")

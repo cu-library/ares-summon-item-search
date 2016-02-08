@@ -5,3 +5,11 @@
 .ui-autocomplete-loading {
     background: #F4FDF4 url("jquery-ui-1.11.4-images/ui-anim_basic_16x16.gif") right center no-repeat;
 }
+
+ul.ui-autocomplete li.ui-menu-item {
+    background-image: none;
+}
+
+ul.ui-autocomplete li.ui-menu-item.ui-state-focus {
+    font-weight: normal;
+}

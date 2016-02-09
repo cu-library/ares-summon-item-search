@@ -10,7 +10,7 @@ To do so, right click on `movefiles.cmd` and select "Run as administrator..."
 You can also copy the three files manually. Copy `ares-summon-item-search.js`, `jquery-ui-1.11.4.min.js`, and `jquery-1.11.3.min.js` to the js directory. 
 Copy `ares-summon-item-search.css`, `jquery-ui-1.11.4.min.css`, and the `jquery-ui-1.11.4-images` directory to the css directory.
 
-Add this to the bottom of the `<body>` tag:
+Add this to the bottom of the `<body>` tag in the form file, like `IRFArticle.html`:
 ```html
 <!-- ares-summon-item-search -->
 <script src="js/jquery-1.11.3.min.js"></script>

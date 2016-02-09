@@ -64,7 +64,6 @@ AresSummonItemSearch.SearchJournalTitle = function (request, response) {
             "s.fvf": "ContentType,Journal / eJournal",
             "s.mr": "5",
             "s.ps": "5",
-            "s.ho": "true",
             "s.hl": "false",
             "s.q": query
         }
@@ -102,7 +101,6 @@ AresSummonItemSearch.SearchArticleTitle = function (request, response) {
             "s.fvf": "ContentType,Journal Article",
             "s.mr": "5",
             "s.ps": "5",
-            "s.ho": "true",
             "s.hl": "false",
             "s.q": query
         }
@@ -143,7 +141,7 @@ AresSummonItemSearch.SelecteArticleTitle = function (event, ui) {
             "s.fvf": "ContentType,Journal Article",
             "s.mr": "5",
             "s.ps": "5",
-            "s.ho": "true",
+            "s.hl": "false",
             "s.q": query
         }
     })
@@ -158,8 +156,14 @@ AresSummonItemSearch.SelecteArticleTitle = function (event, ui) {
 
             // Author
             jq("#Author").val("");
-            if ("Author" in result) {
-                jq("#Author").val(result.Author[0]);
+            if ("Author_xml" in result) {
+                if (result.Author_xml.length === 1) {
+                    jq("#Author").val(result.Author_xml[0].surname + ", " + result.Author_xml[0].givenname);
+                } else if (result.Author_xml.length === 2) {
+                    jq("#Author").val(result.Author_xml[0].surname + ", " + result.Author_xml[0].givenname + " and " + result.Author_xml[1].surname + ", " + result.Author_xml[1].givenname);
+                } else {
+                    jq("#Author").val(result.Author_xml[0].surname + ", " + result.Author_xml[0].givenname + ", et al.");
+                }
             }
 
             // Year
@@ -200,7 +204,7 @@ AresSummonItemSearch.SelecteArticleTitle = function (event, ui) {
 
             //URL
             jq("#URL").val("");
-            if (result.hasFullText && "link" in result) {
+            if ("link" in result) {
                 jq("#WebLink").prop("checked", true);
                 jq("#URL").val(result.link);
             }

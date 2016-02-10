@@ -41,6 +41,12 @@ AresSummonItemSearch.init = function (jq, loricaURL) {
                         minLength: 4,
                         delay: 500
                     });
+                    // Add help to form
+                    jq("label[for='JournalTitle'] b").append("<br><span class=\"note\">Searches Summon for Journal Titles.</span>");
+                    jq("label[for='ArticleTitle'] b").append("<br><span class=\"note\">Searches Summon for Article Titles.</span>");
+                    jq("label[for='ArticleTitle'] b").append("<br><span class=\"note\">Rescricts by Journal Title, if available.</span>");
+                    jq("label[for='ArticleTitle'] b").append("<br><span class=\"note\">Selecting a title from the dropdown will fill in parts</span>");
+                    jq("label[for='ArticleTitle'] b").append("<br><span class=\"note\">of the form from available Summon data.</span>");
                 }
             }
         });

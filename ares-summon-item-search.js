@@ -37,7 +37,7 @@ AresSummonItemSearch.init = function (jq, loricaURL) {
                     // Search Article Titles
                     jq("#ArticleTitle").addClass("ares-summon-autocomplete").autocomplete({
                         source: parent.SearchArticleTitle,
-                        select: parent.SelecteArticleTitle,
+                        select: parent.SelectArticleTitle,
                         minLength: 4,
                         delay: 500
                     });
@@ -47,6 +47,20 @@ AresSummonItemSearch.init = function (jq, loricaURL) {
                     jq("label[for='ArticleTitle'] b").append("<br><span class=\"note\">Rescricts by Journal Title, if available.</span>");
                     jq("label[for='ArticleTitle'] b").append("<br><span class=\"note\">Selecting a title from the dropdown will fill in parts</span>");
                     jq("label[for='ArticleTitle'] b").append("<br><span class=\"note\">of the form from available Summon data.</span>");
+                } else if (~query.indexOf('Action=10') && ~query.indexOf('Form=2')) {
+                    // -- E-Book
+                    // Search E-Book Titles
+                    jq("#Title").addClass("ares-summon-autocomplete").autocomplete({
+                        source: parent.SearchEBookTitle,
+                        select: parent.SelectEBookTitle,
+                        minLength: 4,
+                        delay: 500
+                    });
+                    // Add help to form
+                    jq("label[for='Title'] b").append("<br><span class=\"note\">Searches Summon for E-Books that have full text available online.</span>");
+                    jq("label[for='Title'] b").append("<br><span class=\"note\">Selecting a title from the dropdown will fill in parts</span>");
+                    jq("label[for='Title'] b").append("<br><span class=\"note\">of the form from available Summon data.</span>");
+                    jq("label[for='Author'] b").append("<br><span class=\"note\">Entering an author then a title will restrict to titles by that author.</span>");
                 }
             }
         });
@@ -60,7 +74,7 @@ AresSummonItemSearch.SearchJournalTitle = function (request, response) {
     var jq = parent.jq;
     var loricaURL = parent.loricaURL;
 
-    var query = request.term;
+    var query = "(TitleCombined:(" + request.term + "))";
 
     jq.ajax({
         url: loricaURL,
@@ -92,11 +106,13 @@ AresSummonItemSearch.SearchArticleTitle = function (request, response) {
     var jq = parent.jq;
     var loricaURL = parent.loricaURL;
 
-    var query = request.term;
+    var query = "";
 
     if (jq("#Title").val() !== "") {
         // If the journal title has already been supplied, use it to restrict the search.
-        query = "(" + request.term + ") AND (PublicationTitle:(" + jq("#Title").val() + "))";
+        query = "(TitleCombined:(" + request.term + ")) AND (PublicationTitle:(" + jq("#Title").val() + "))";
+    } else {
+        query = "(TitleCombined:(" + request.term + "))";
     }
 
     jq.ajax({
@@ -125,7 +141,7 @@ AresSummonItemSearch.SearchArticleTitle = function (request, response) {
 };
 
 /* Autocomplete Select - Article Title Selected */
-AresSummonItemSearch.SelecteArticleTitle = function (event, ui) {
+AresSummonItemSearch.SelectArticleTitle = function (event, ui) {
 
     "use strict";
     var parent = AresSummonItemSearch;
@@ -162,13 +178,13 @@ AresSummonItemSearch.SelecteArticleTitle = function (event, ui) {
 
             // Author
             jq("#Author").val("");
-            if ("Author_xml" in result) {
-                if (result.Author_xml.length === 1) {
-                    jq("#Author").val(result.Author_xml[0].surname + ", " + result.Author_xml[0].givenname);
+            if ("Author" in result) {
+                if (result.Author.length === 1) {
+                    jq("#Author").val(result.Author[0]);
                 } else if (result.Author_xml.length === 2) {
-                    jq("#Author").val(result.Author_xml[0].surname + ", " + result.Author_xml[0].givenname + " and " + result.Author_xml[1].surname + ", " + result.Author_xml[1].givenname);
+                    jq("#Author").val(result.Author[0] + " and " + result.Author[1]);
                 } else {
-                    jq("#Author").val(result.Author_xml[0].surname + ", " + result.Author_xml[0].givenname + ", et al.");
+                    jq("#Author").val(result.Author[0] + ", et al.");
                 }
             }
 
@@ -207,6 +223,12 @@ AresSummonItemSearch.SelecteArticleTitle = function (event, ui) {
                     jq("#Pages").val(startpage);
                 }
             }
+            
+            // DOI
+            jq("#Notes").val("");
+            if ("DOI" in result) {
+                jq("#Notes").val("DOI: " + result.DOI[0]);
+            }
 
             //URL
             jq("#URL").val("");
@@ -217,6 +239,142 @@ AresSummonItemSearch.SelecteArticleTitle = function (event, ui) {
         })
         .always(function (data) {
             jq("#ArticleTitle").removeClass("ui-autocomplete-loading");
+        });
+
+};
+
+/* Autocomplete Source - Search E-Book Title */
+AresSummonItemSearch.SearchEBookTitle = function (request, response) {
+
+    "use strict";
+    var parent = AresSummonItemSearch;
+    var jq = parent.jq;
+    var loricaURL = parent.loricaURL;
+
+    var query = "";
+
+    if (jq("#Author").val() !== "") {
+        // If the Author has already been supplied, use it to restrict the search.
+        query = "(TitleCombined:(" + request.term + ")) AND (AuthorCombined:(" + jq("#Author").val() + "))";
+    } else {
+        query = "(TitleCombined:(" + request.term + "))";
+    }
+
+    jq.ajax({
+        url: loricaURL,
+        dataType: "json",
+        data: {
+            "s.light": "true",
+            "s.fvf": "ContentType,eBook",
+            "s.fvf": "IsFullText,true",
+            "s.mr": "5",
+            "s.ps": "5",
+            "s.hl": "false",
+            "s.q": query
+        }
+    })
+        .done(function (data) {
+            response(jq.map(data.documents, function (resultdocument, index) {
+                return {
+                    "label": resultdocument.Title[0],
+                    "value": index.toString() + query
+                };
+            }));
+        })
+        .fail(function () {
+            response([]);
+        });
+};
+
+/* Autocomplete Select - E-Book Title Selected */
+AresSummonItemSearch.SelectEBookTitle = function (event, ui) {
+
+    "use strict";
+    var parent = AresSummonItemSearch;
+    var jq = parent.jq;
+    var loricaURL = parent.loricaURL;
+
+    var indexInResults = parseInt(ui.item.value.substr(0, 1));
+    var query = ui.item.value.substr(1);
+
+    jq("#Title").val(ui.item.label);
+    jq("#Title").addClass("ui-autocomplete-loading");
+    event.preventDefault();
+
+    jq.ajax({
+        url: loricaURL,
+        dataType: "json",
+        data: {
+            "s.light": "true",
+            "s.fvf": "ContentType,eBook",
+            "s.fvf": "IsFullText,true",
+            "s.mr": "5",
+            "s.ps": "5",
+            "s.hl": "false",
+            "s.q": query
+        }
+    })
+        .done(function (data) {
+
+            var result = data.documents[indexInResults];
+
+            // Author
+            jq("#Author").val("");
+            if ("Author" in result) {
+                if (result.Author.length === 1) {
+                    jq("#Author").val(result.Author[0]);
+                } else if (result.Author_xml.length === 2) {
+                    jq("#Author").val(result.Author[0] + " and " + result.Author[1]);
+                } else {
+                    jq("#Author").val(result.Author[0] + ", et al.");
+                }
+            }
+            
+            // Publisher
+            jq("#Publisher").val("");
+            if ("Publisher" in result) {
+                jq("#Publisher").val(result.Publisher[0]);
+            }
+            
+            // Place of Publication
+            jq("#PubPlace").val("");
+            if ("PublicationPlace" in result) {
+                jq("#PubPlace").val(result.PublicationPlace[0]);
+            }            
+
+            // PubDate
+            jq("#PubDate").val("");
+            if ("PublicationDate" in result) {
+                jq("#PubDate").val(result.PublicationDate[0]);
+            }
+            
+            // Edition
+            jq("#Edition").val("");
+            if ("Edition" in result) {
+                jq("#Edition").val(result.Edition[0]);
+            }
+            
+            // ISBN
+            jq("#ISXN").val("");
+            if ("ISBN" in result) {
+                jq("#ISXN").val(result.ISBN.join(", "));
+            }      
+            
+            // Call Number
+            jq("#CallNumber").val("");
+            if ("LCCallNum" in result) {
+                jq("#CallNumber").val(result.LCCallNum[0]);
+            }    
+            
+            //URL
+            jq("#URL").val("");
+            if ("link" in result) {
+                jq("#WebLink").prop("checked", true);
+                jq("#Notes").val(result.link);
+            }
+        })
+        .always(function (data) {
+            jq("#Title").removeClass("ui-autocomplete-loading");
         });
 
 };

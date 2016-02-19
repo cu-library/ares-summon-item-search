@@ -223,7 +223,7 @@ AresSummonItemSearch.SelectArticleTitle = function (event, ui) {
                     jq("#Pages").val(startpage);
                 }
             }
-            
+
             // DOI
             jq("#Notes").val("");
             if ("DOI" in result) {
@@ -265,8 +265,7 @@ AresSummonItemSearch.SearchEBookTitle = function (request, response) {
         dataType: "json",
         data: {
             "s.light": "true",
-            "s.fvf": "ContentType,eBook",
-            "s.fvf": "IsFullText,true",
+            "s.fvf": ["ContentType,eBook", "IsFullText,true"],
             "s.mr": "5",
             "s.ps": "5",
             "s.hl": "false",
@@ -306,8 +305,7 @@ AresSummonItemSearch.SelectEBookTitle = function (event, ui) {
         dataType: "json",
         data: {
             "s.light": "true",
-            "s.fvf": "ContentType,eBook",
-            "s.fvf": "IsFullText,true",
+            "s.fvf": ["ContentType,eBook", "IsFullText,true"],
             "s.mr": "5",
             "s.ps": "5",
             "s.hl": "false",
@@ -329,43 +327,43 @@ AresSummonItemSearch.SelectEBookTitle = function (event, ui) {
                     jq("#Author").val(result.Author[0] + ", et al.");
                 }
             }
-            
+
             // Publisher
             jq("#Publisher").val("");
             if ("Publisher" in result) {
                 jq("#Publisher").val(result.Publisher[0]);
             }
-            
+
             // Place of Publication
             jq("#PubPlace").val("");
             if ("PublicationPlace" in result) {
                 jq("#PubPlace").val(result.PublicationPlace[0]);
-            }            
+            }
 
             // PubDate
             jq("#PubDate").val("");
             if ("PublicationDate" in result) {
                 jq("#PubDate").val(result.PublicationDate[0]);
             }
-            
+
             // Edition
             jq("#Edition").val("");
             if ("Edition" in result) {
                 jq("#Edition").val(result.Edition[0]);
             }
-            
+
             // ISBN
             jq("#ISXN").val("");
             if ("ISBN" in result) {
                 jq("#ISXN").val(result.ISBN.join(", "));
-            }      
-            
+            }
+
             // Call Number
             jq("#CallNumber").val("");
             if ("LCCallNum" in result) {
                 jq("#CallNumber").val(result.LCCallNum[0]);
-            }    
-            
+            }
+
             //URL
             jq("#URL").val("");
             if ("link" in result) {

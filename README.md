@@ -2,6 +2,8 @@
 
 Using Summon search results to prepopulate forms in Ares.
 
+The Journal Article (Electronic) and e-Book forms have been enhanced. Other forms are still being worked on. 
+
 ## Installation
 
 If Ares' webroot is at `C:\inetpub\wwwroot\ares`, then you can use `movefiles.cmd` to move js, css, and images files to the correct locations. 

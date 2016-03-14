@@ -47,7 +47,7 @@ AresSummonItemSearch.init = function (jq, loricaURL) {
                     jq("label[for='ArticleTitle'] b").append("<br><span class=\"note\">Rescricts by Journal Title, if available.</span>");
                     jq("label[for='ArticleTitle'] b").append("<br><span class=\"note\">Selecting a title from the dropdown will fill in parts</span>");
                     jq("label[for='ArticleTitle'] b").append("<br><span class=\"note\">of the form from available Summon data.</span>");
-                } else if (~query.indexOf('Action=10') && ~query.indexOf('Form=2')) {
+                } else if (~query.indexOf('Action=10') && ~query.indexOf('Form=2') ~query.indexOf('Value=IRFEBook') ) {
                     // -- E-Book
                     // Search E-Book Titles
                     jq("#Title").addClass("ares-summon-autocomplete").autocomplete({
@@ -61,7 +61,7 @@ AresSummonItemSearch.init = function (jq, loricaURL) {
                     jq("label[for='Title'] b").append("<br><span class=\"note\">Selecting a title from the dropdown will fill in parts</span>");
                     jq("label[for='Title'] b").append("<br><span class=\"note\">of the form from available Summon data.</span>");
                     jq("label[for='Author'] b").append("<br><span class=\"note\">Entering an author then a title will restrict to titles by that author.</span>");
-                }
+                } 
             }
         });
 };

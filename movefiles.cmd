@@ -21,8 +21,8 @@ GOTO CANCEL
 
 :CONTINUE
 
-ECHO Copying jquery-1.11.3.min.js...
-COPY /V /Y jquery-1.11.3.min.js %jsinstalldir%
+ECHO Copying jquery-1.12.4.min.js...
+COPY /V /Y jquery-1.12.4.min.js %jsinstalldir%
 
 ECHO Copying jquery-ui-1.11.4.min.js...
 COPY /V /Y jquery-ui-1.11.4.min.js %jsinstalldir%

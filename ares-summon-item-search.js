@@ -42,13 +42,23 @@ AresSummonItemSearch.init = function (jq, loricaURL) {
                         delay: 500
                     });
                     // Add help to form
-                    jq("label[for='JournalTitle'] b").append("<br><span class=\"note\">Searches Summon for Journal Titles.</span>");
-                    jq("label[for='ArticleTitle'] b").append("<br><span class=\"note\">Searches Summon for Article Titles.</span>");
-                    jq("label[for='ArticleTitle'] b").append("<br><span class=\"note\">Rescricts by Journal Title, if available.</span>");
-                    jq("label[for='ArticleTitle'] b").append("<br><span class=\"note\">Selecting a title from the dropdown will fill in parts</span>");
-                    jq("label[for='ArticleTitle'] b").append("<br><span class=\"note\">of the form from available Summon data.</span>");
+                    jq("label[for='Title'] strong").append("<br><span class=\"note\">Searches Summon for Journal Titles.</span>");
+                    jq("label[for='ArticleTitle'] strong").append("<br><span class=\"note\">Searches Summon for Article Titles. Rescricts by Journal Title, if available.</span>");
+                    jq("label[for='ArticleTitle'] strong").append("<br><span class=\"note\">Selecting a title from the dropdown will fill in parts of the form from available Summon data.</span>");
+                } else if (~query.indexOf('Action=10') && ~query.indexOf('Form=2') && ~query.indexOf('Value=IRFBook')) {
+                    // -- Book
+                    // Search Book Titles
+                    jq("#Title").addClass("ares-summon-autocomplete").autocomplete({
+                        source: parent.SearchBookTitle,
+                        select: parent.SelectBookTitle,
+                        minLength: 4,
+                        delay: 500
+                    });
+                    // Add help to form
+                    jq("label[for='Title'] strong").append("<br><span class=\"note\">Selecting a title from the dropdown will fill in parts of the form from available Summon data.</span>");    
+                    jq("label[for='Author'] strong").append("<br><span class=\"note\">Entering an author then a title will restrict to titles by that author</span>");
                 } 
-            }
+            } 
         });
 };
 
@@ -229,15 +239,17 @@ AresSummonItemSearch.SelectArticleTitle = function (event, ui) {
 
 };
 
-/* Autocomplete Source - Search E-Book Title */
-AresSummonItemSearch.SearchEBookTitle = function (request, response) {
+/* Autocomplete Source - Search Book Title */
+AresSummonItemSearch.SearchBookTitle = function (request, response) {
 
     "use strict";
     var parent = AresSummonItemSearch;
     var jq = parent.jq;
-    var loricaURL = parent.loricaURL;
-
+    var loricaURL = parent.loricaURL; 
+    
     var query = "";
+    
+    var contentType = jq("#BookOrEBook").val();
 
     if (jq("#Author").val() !== "") {
         // If the Author has already been supplied, use it to restrict the search.
@@ -251,7 +263,7 @@ AresSummonItemSearch.SearchEBookTitle = function (request, response) {
         dataType: "json",
         data: {
             "s.light": "true",
-            "s.fvf": ["ContentType,eBook", "IsFullText,true"],
+            "s.fvf": "ContentType,Book / eBook",
             "s.mr": "5",
             "s.ps": "5",
             "s.hl": "false",
@@ -271,8 +283,8 @@ AresSummonItemSearch.SearchEBookTitle = function (request, response) {
         });
 };
 
-/* Autocomplete Select - E-Book Title Selected */
-AresSummonItemSearch.SelectEBookTitle = function (event, ui) {
+/* Autocomplete Select - Book Title Selected */
+AresSummonItemSearch.SelectBookTitle = function (event, ui) {
 
     "use strict";
     var parent = AresSummonItemSearch;
@@ -281,6 +293,8 @@ AresSummonItemSearch.SelectEBookTitle = function (event, ui) {
 
     var indexInResults = parseInt(ui.item.value.substr(0, 1));
     var query = ui.item.value.substr(1);
+        
+    var contentType = jq("#BookOrEBook").val();
 
     jq("#Title").val(ui.item.label);
     jq("#Title").addClass("ui-autocomplete-loading");
@@ -291,7 +305,7 @@ AresSummonItemSearch.SelectEBookTitle = function (event, ui) {
         dataType: "json",
         data: {
             "s.light": "true",
-            "s.fvf": ["ContentType,eBook", "IsFullText,true"],
+            "s.fvf": "ContentType,Book / eBook",
             "s.mr": "5",
             "s.ps": "5",
             "s.hl": "false",
